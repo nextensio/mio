@@ -31,6 +31,22 @@ pub(crate) fn bind(socket: &net::TcpListener, addr: SocketAddr) -> io::Result<()
     Ok(())
 }
 
+pub(crate) fn bind_stream(socket: &net::TcpStream, addr: SocketAddr) -> io::Result<()> {
+    use winsock2::bind;
+
+    let (raw_addr, raw_addr_length) = socket_addr(&addr);
+    syscall!(
+        bind(
+            socket.as_raw_socket() as _,
+            raw_addr.as_ptr(),
+            raw_addr_length
+        ),
+        PartialEq::eq,
+        SOCKET_ERROR
+    )?;
+    Ok(())
+}
+
 pub(crate) fn connect(socket: &net::TcpStream, addr: SocketAddr) -> io::Result<()> {
     use winsock2::connect;
 
