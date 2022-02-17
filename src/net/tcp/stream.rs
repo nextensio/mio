@@ -7,7 +7,7 @@ use std::os::unix::io::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
 use std::os::windows::io::{AsRawSocket, FromRawSocket, IntoRawSocket, RawSocket};
 
 use crate::io_source::IoSource;
-use crate::sys::tcp::{connect, new_for_addr};
+use crate::sys::tcp::{connect, new_for_addr, bind_stream};
 use crate::{event, Interest, Registry, Token};
 
 /// A non-blocking TCP stream between a local socket and a remote socket.
@@ -85,7 +85,7 @@ impl TcpStream {
 
     pub fn connect_with_bind(addr: SocketAddr, bind_addr: SocketAddr) -> io::Result<TcpStream> {
         let socket = new_for_addr(addr)?;
-        crate::sys::tcp::bind(socket, bind_addr)?;
+        bind_stream(socket, bind_addr)?;
         #[cfg(unix)]
         let stream = unsafe { TcpStream::from_raw_fd(socket) };
         #[cfg(windows)]
