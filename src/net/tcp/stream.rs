@@ -83,6 +83,17 @@ impl TcpStream {
         Ok(stream)
     }
 
+    pub fn connect_with_bind(addr: SocketAddr, bind_addr: SocketAddr) -> io::Result<TcpStream> {
+        let socket = new_for_addr(addr)?;
+        bind(socket, bind_addr)?;
+        #[cfg(unix)]
+        let stream = unsafe { TcpStream::from_raw_fd(socket) };
+        #[cfg(windows)]
+        let stream = unsafe { TcpStream::from_raw_socket(socket as _) };
+        connect(&stream.inner, addr)?;
+        Ok(stream)
+    }
+
     /// Creates a new `TcpStream` from a standard `net::TcpStream`.
     ///
     /// This function is intended to be used to wrap a TCP stream from the
