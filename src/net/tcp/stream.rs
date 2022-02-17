@@ -85,11 +85,11 @@ impl TcpStream {
 
     pub fn connect_with_bind(addr: SocketAddr, bind_addr: SocketAddr) -> io::Result<TcpStream> {
         let socket = new_for_addr(addr)?;
-        bind_stream(socket, bind_addr)?;
         #[cfg(unix)]
         let stream = unsafe { TcpStream::from_raw_fd(socket) };
         #[cfg(windows)]
         let stream = unsafe { TcpStream::from_raw_socket(socket as _) };
+        bind_stream(stream, bind_addr)?;
         connect(&stream.inner, addr)?;
         Ok(stream)
     }
